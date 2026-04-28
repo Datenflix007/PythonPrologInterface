@@ -12,7 +12,7 @@ def request_with_sld_visualization(api: PrologService, query: str, output_path: 
     print("=== SLD-Resolutionserklärung ===")
     if response.get("ok"):
         tree = response["data"]["tree"]
-        svg_path = save_sld_tree_svg(tree, output_path, title=f"SLD Tree: {query}")
+        svg_path = save_sld_tree_svg(tree, output_path, title=f"SLD-Tree: ?- {query}.")
         print("SVG gespeichert unter:", svg_path)
         open_svg_in_browser(svg_path)
     else:

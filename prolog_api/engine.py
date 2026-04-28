@@ -52,6 +52,8 @@ class PrologEngine:
         """
         Gibt eine SLD-Resolutionserklärung für eine Query zurück.
         """
+        self._standardized_variable_counter = 0
+        self._clause_application_counter = 0
         return {
             "query": query_text,
             "tree": self._build_sld_tree(query_text.strip(), 0, [], max_depth)
@@ -134,14 +136,22 @@ class PrologEngine:
     def _find_variables(self, text: str) -> List[str]:
         return [
             match.group(0)
-            for match in re.finditer(r"[A-Z][A-Za-z0-9_]*", text)
+            for match in re.finditer(r"\b[A-Z][A-Za-z0-9_]*\b", text)
         ]
 
     def _replace_vars(self, text: str, mapping: Dict[str, str]) -> str:
-        pattern = re.compile(r"([A-Z][A-Za-z0-9_]*)")
+        pattern = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
         return pattern.sub(lambda match: mapping.get(match.group(1), match.group(1)), text)
 
-    def _standardize_clause(self, clause: Dict[str, Any], clause_id: int) -> Dict[str, Any]:
+    def _next_clause_application_id(self) -> int:
+        self._clause_application_counter += 1
+        return self._clause_application_counter
+
+    def _next_standardized_variable(self, variable: str) -> str:
+        self._standardized_variable_counter += 1
+        return f"{variable}_{self._standardized_variable_counter}"
+
+    def _standardize_clause(self, clause: Dict[str, Any]) -> Dict[str, Any]:
         vars_in_clause: List[str] = []
         for part in [clause["head"]] + clause["body"]:
             for var in self._find_variables(part):
@@ -149,8 +159,8 @@ class PrologEngine:
                     vars_in_clause.append(var)
 
         mapping: Dict[str, str] = {}
-        for count, var in enumerate(vars_in_clause, start=1):
-            mapping[var] = f"{var}_{clause_id}"
+        for var in vars_in_clause:
+            mapping[var] = self._next_standardized_variable(var)
 
         return {
             "head": self._replace_vars(clause["head"], mapping),
@@ -230,12 +240,26 @@ class PrologEngine:
     def _format_substitution(self, substitution: Optional[Dict[str, str]]) -> str:
         if not substitution:
             return "{}"
-        return "{" + ", ".join(f"{var}→{val}" for var, val in substitution.items()) + "}"
+        return "{" + ", ".join(f"{var} -> {val}" for var, val in substitution.items()) + "}"
 
     def _format_standardization(self, mapping: Dict[str, str]) -> str:
         if not mapping:
             return "{}"
-        return "{" + ", ".join(f"{orig}→{new}" for orig, new in mapping.items()) + "}"
+        return "{" + ", ".join(f"{orig} -> {new}" for orig, new in mapping.items()) + "}"
+
+    def _edge_resolution_lines(
+        self,
+        line_number: int,
+        standardization_label: str,
+        standardization: Dict[str, str],
+        substitution_label: str,
+        substitution: Optional[Dict[str, str]],
+    ) -> List[str]:
+        return [
+            f"({line_number})",
+            f"{standardization_label} = {self._format_standardization(standardization)}",
+            f"{substitution_label} = {self._format_substitution(substitution)}",
+        ]
 
     def _query_preview(self, goal: str, max_results: int = 3) -> List[Dict[str, Any]]:
         try:
@@ -290,17 +314,29 @@ class PrologEngine:
         if not clauses:
             return self._build_external_goal_node(goal)
 
-        for clause_index, clause in enumerate(clauses, start=1):
-            standardized = self._standardize_clause(clause, depth * 1000 + clause_index)
+        for clause in clauses:
+            application_id = self._next_clause_application_id()
+            standardized = self._standardize_clause(clause)
             substitution = self._unify_goal_with_head(goal, standardized["head"])
 
             attempt: Dict[str, Any] = {
                 "goal": goal,
                 "clause": standardized["head"],
                 "line_number": clause["line"],
+                "application_id": application_id,
+                "substitution_label": f"u_{application_id}",
+                "standardization_label": f"s_{application_id}",
+                "substitution_map": substitution or {},
+                "standardization_map": standardized["standardization"],
                 "substitution": self._format_substitution(substitution),
                 "standardization": self._format_standardization(standardized["standardization"]),
-                "edge_label": f"Zeile {clause['line']} | σ={self._format_substitution(substitution)} | std={self._format_standardization(standardized['standardization'])}",
+                "edge_lines": self._edge_resolution_lines(
+                    clause["line"],
+                    f"s_{application_id}",
+                    standardized["standardization"],
+                    f"u_{application_id}",
+                    substitution,
+                ),
                 "children": [],
             }
 
