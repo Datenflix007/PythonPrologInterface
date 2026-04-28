@@ -1,0 +1,57 @@
+
+---
+
+# .gitignore
+
+```gitignore
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SWI-Prolog temporäre Dateien
+*.qlf
+
+# Testing / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# dotenv
+.env
+
+# mypy
+.mypy_cache/
+
+# pyright
+.pyright/
+
+# local configs
+*.local
