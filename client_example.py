@@ -20,21 +20,35 @@ def request_with_sld_visualization(api: PrologService, query: str, output_path: 
 
 
 def main():
-    api = PrologService(str(Path("knowledge/context2.pl")))
+    knowledge_file = Path("knowledge/context2.pl")
+    api = PrologService(knowledge_file)
+
+    #response = api.handle_request({
+    #    "action": "raw_query",
+    #    "params": {"query": "classify_vehicle(ktw_c, Type)"}
+    #})
+    #print("classify_vehicle(ktw_c, Type):", response)
+
+    #response = api.handle_request({
+    #    "action": "raw_query",
+    #    "params": {"query": "equipped_for(ktw_c, emergency_service)"}
+    #})
+    #print("equipped_for(ktw_c, emergency_service):", response)
+
+    query = "ktw_norm([ktw_a, ktw_b, ktw_c], Norm)"
+    response = api.handle_request({
+        "action": "raw_query",
+        "params": {"query": query}
+    })
+    print("ktw_norm(Type, Norm) - long:", response)
 
     response = api.handle_request({
         "action": "raw_query",
-        "params": {"query": "vehicle_type(ktw_c, Type)"}
+        "params": {"query": query, "mode": "short"}
     })
-    print("vehicle_type(ktw_c, Type):", response)
+    print("ktw_norm(Type, Norm) - short:", response)
 
-    response = api.handle_request({
-        "action": "raw_query",
-        "params": {"query": "ktw_compliant(ktw_c, typ_c)"}
-    })
-    print("ktw_compliant(ktw_c, typ_c):", response)
-
-    request_with_sld_visualization(api, "ktw_compliant(ktw_c, Type)", "sld_ktw_c.svg")
+    request_with_sld_visualization(api, query, "sld_tree.svg")
 
 
 if __name__ == "__main__":

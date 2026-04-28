@@ -314,7 +314,7 @@ response = api.handle_request({
 print(response)
 ```
 
-Example response:
+Example response (long):
 
 ```python
 {
@@ -327,6 +327,22 @@ Example response:
     ]
 }
 ```
+
+For a shorter response, add `"mode": "short"`:
+
+```python
+response = api.handle_request({
+    "action": "raw_query",
+    "params": {
+        "query": "role(Person, Role)",
+        "mode": "short"
+    }
+})
+```
+
+If the query is boolean, the short result becomes `True` or `False`. If the query returns a single variable, the short result returns a scalar or list of values.
+
+`explain_query` also supports `"mode": "short"` for a compact answer-only response instead of the full SLD tree.
 
 ---
 

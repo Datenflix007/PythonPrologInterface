@@ -13,8 +13,33 @@ class PrologService:
     def __init__(self, knowledge_file: str | Path):
         self.engine = PrologEngine(knowledge_file)
 
-    def raw_query(self, query_text: str) -> List[Dict[str, Any]]:
-        return self.engine.query(query_text)
+    def raw_query(self, query_text: str, mode: str = "long") -> Any:
+        results = self.engine.query(query_text)
+        if mode == "short":
+            return self._shorten_results(results)
+        return results
+
+    def _shorten_results(self, results: List[Dict[str, Any]]) -> Any:
+        if not results:
+            return False
+
+        keys = sorted({key for result in results for key in result.keys()})
+        if not keys:
+            return True
+
+        if len(keys) == 1:
+            key = keys[0]
+            values = [result[key] for result in results]
+            return values[0] if len(values) == 1 else values
+
+        # For multi-variable queries, if any variable has the same value in all results, return that value
+        for key in keys:
+            values = [result[key] for result in results]
+            unique_values = set(values)
+            if len(unique_values) == 1:
+                return list(unique_values)[0]
+
+        return results
 
     def get_people_by_role(self, role: str) -> List[str]:
         query = f"role(Person, {role})"
@@ -35,8 +60,15 @@ class PrologService:
         query = f"suitable_for_project({person}, {project})"
         return self.engine.is_true(query)
 
-    def explain_query(self, query_text: str) -> Dict[str, Any]:
-        return self.engine.explain_query(query_text)
+    def explain_query(self, query_text: str, mode: str = "long") -> Any:
+        long_result = self.engine.explain_query(query_text)
+        if mode == "short":
+            return {
+                "query": query_text,
+                "mode": "short",
+                "data": self._shorten_results(self.engine.query(query_text)),
+            }
+        return long_result
 
     def handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -68,10 +100,10 @@ class PrologService:
                 )
 
             elif action == "raw_query":
-                data = self.raw_query(params["query"])
+                data = self.raw_query(params["query"], params.get("mode", "long"))
 
             elif action == "explain_query":
-                data = self.explain_query(params["query"])
+                data = self.explain_query(params["query"], params.get("mode", "long"))
 
             else:
                 return {

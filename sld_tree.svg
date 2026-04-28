@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="460" viewBox="0 0 800 460">
+<style>
+  .node rect { fill: #f8fafc; stroke: #1f2937; stroke-width: 1.8px; rx: 12px; filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.12)); }
+  .text { font-family: Arial, sans-serif; fill: #0f172a; }
+  .title { font-weight: bold; font-size: 18px; }
+  .edge { stroke: #475569; stroke-width: 1.4px; }
+  .edge-label { fill: #334155; font-size: 11px; font-style: normal; }
+  .result { fill: #0f172a; font-size: 12px; font-weight: bold; }
+  .note { fill: #475569; font-size: 11px; }
+</style>
+<text x="40" y="58" class="text title">SLD Tree: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<line class="edge" x1="380.0" y1="150" x2="180.0" y2="310" />
+<text class="edge-label" x="280.0" y="222.0" text-anchor="middle">Zeile 172 | σ={} | std={}</text>
+<line class="edge" x1="380.0" y1="150" x2="580.0" y2="310" />
+<text class="edge-label" x="480.0" y="222.0" text-anchor="middle">Zeile 176 | σ={} | std={}</text>
+<g class="node">
+<rect x="0.0" y="310" width="360" height="110" />
+<text class="text" x="12.0" y="338" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text" x="12.0" y="356" font-size="12">Clause: ktw_norm(Input, Norms)</text>
+<text class="text" x="12.0" y="374" font-size="12">Line: 172</text>
+<text class="text" x="12.0" y="392" font-size="12">σ: {}</text>
+<text class="text" x="12.0" y="410" font-size="12">std: {}</text>
+<text class="text" x="12.0" y="428" font-size="12">Result: failed</text>
+</g>
+<g class="node">
+<rect x="400.0" y="310" width="360" height="110" />
+<text class="text" x="412.0" y="338" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text" x="412.0" y="356" font-size="12">Clause: ktw_norm(Input, Norm)</text>
+<text class="text" x="412.0" y="374" font-size="12">Line: 176</text>
+<text class="text" x="412.0" y="392" font-size="12">σ: {}</text>
+<text class="text" x="412.0" y="410" font-size="12">std: {}</text>
+<text class="text" x="412.0" y="428" font-size="12">Result: failed</text>
+</g>
+<g class="node">
+<rect x="200.0" y="40" width="360" height="110" />
+<text class="text" x="212.0" y="68" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text" x="212.0" y="86" font-size="12">Result: failed</text>
+</g>
+</svg>

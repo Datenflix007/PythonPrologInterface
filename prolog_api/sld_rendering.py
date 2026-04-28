@@ -6,16 +6,20 @@ import webbrowser
 
 
 class SvgLayoutConfig:
-    node_width: int = 260
-    node_height: int = 72
-    x_spacing: int = 20
-    y_spacing: int = 110
-    margin: int = 24
-    font_size: int = 13
+    node_width: int = 360
+    node_height: int = 110
+    x_spacing: int = 40
+    y_spacing: int = 160
+    margin: int = 40
+    font_size: int = 12
     line_height: int = 18
 
 
-def save_sld_tree_svg(tree: Dict[str, Any], output_path: str | Path = "sld_tree.svg", title: str | None = None) -> Path:
+def save_sld_tree_svg(
+    tree: Dict[str, Any],
+    output_path: str | Path = "sld_tree.svg",
+    title: str | None = None,
+) -> Path:
     path = Path(output_path)
     svg = render_sld_tree_svg(tree, title)
     path.write_text(svg, encoding="utf-8")
@@ -36,19 +40,21 @@ def render_sld_tree_svg(tree: Dict[str, Any], title: str | None = None) -> str:
     height = int(max(node["y"] for node in nodes) + config.node_height + config.margin)
 
     svg_parts = [
-        f"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" viewBox=\"0 0 {width} {height}\">",
-        "<style>\n"
-        "  .node rect { fill: #f8fafc; stroke: #1f2937; stroke-width: 1.8px; rx: 12px; }\n"
-        "  .text { font-family: Arial, sans-serif; fill: #111827; }\n"
-        "  .title { font-weight: bold; font-size: 16px; }\n"
-        "  .edge { stroke: #4b5563; stroke-width: 1.2px; }\n"
-        "  .note { fill: #374151; font-size: 12px; font-style: italic; }\n"
-        "</style>",
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+        """<style>
+  .node rect { fill: #f8fafc; stroke: #1f2937; stroke-width: 1.8px; rx: 12px; filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.12)); }
+  .text { font-family: Arial, sans-serif; fill: #0f172a; }
+  .title { font-weight: bold; font-size: 18px; }
+  .edge { stroke: #475569; stroke-width: 1.4px; }
+  .edge-label { fill: #334155; font-size: 11px; font-style: normal; }
+  .result { fill: #0f172a; font-size: 12px; font-weight: bold; }
+  .note { fill: #475569; font-size: 11px; }
+</style>""",
     ]
 
     if title:
         svg_parts.append(
-            f"<text x=\"{config.margin}\" y=\"{config.margin + 14}\" class=\"text title\">{_escape_svg(title)}</text>"
+            f'<text x="{config.margin}" y="{config.margin + 18}" class="text title">{_escape_svg(title)}</text>'
         )
 
     for node in nodes:
@@ -62,7 +68,13 @@ def render_sld_tree_svg(tree: Dict[str, Any], title: str | None = None) -> str:
     return "\n".join(svg_parts)
 
 
-def _layout_tree(node: Dict[str, Any], depth: int, x_offset: float, config: SvgLayoutConfig, nodes: List[Dict[str, Any]]) -> float:
+def _layout_tree(
+    node: Dict[str, Any],
+    depth: int,
+    x_offset: float,
+    config: SvgLayoutConfig,
+    nodes: List[Dict[str, Any]],
+) -> float:
     children = node.get("children", [])
     y = config.margin + depth * (config.node_height + config.y_spacing)
     node["y"] = y
@@ -74,6 +86,7 @@ def _layout_tree(node: Dict[str, Any], depth: int, x_offset: float, config: SvgL
 
     sub_x = x_offset
     child_centers = []
+
     for child in children:
         child_width = _layout_tree(child, depth + 1, sub_x, config, nodes)
         child_centers.append(child["x"])
@@ -89,27 +102,57 @@ def _svg_edge(parent: Dict[str, Any], child: Dict[str, Any], config: SvgLayoutCo
     y1 = parent["y"] + config.node_height
     x2 = child["x"]
     y2 = child["y"]
-    return f"<line class=\"edge\" x1=\"{x1}\" y1=\"{y1}\" x2=\"{x2}\" y2=\"{y2}\" />"
+
+    edge = f'<line class="edge" x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" />'
+    label = child.get("edge_label", "")
+
+    if not label:
+        return edge
+
+    label_x = (x1 + x2) / 2
+    label_y = (y1 + y2) / 2 - 8
+
+    return (
+        edge
+        + f'\n<text class="edge-label" x="{label_x}" y="{label_y}" text-anchor="middle">{_escape_svg(label)}</text>'
+    )
 
 
 def _svg_node(node: Dict[str, Any], config: SvgLayoutConfig) -> str:
     x = node["x"] - config.node_width / 2
     y = node["y"]
+
     label_lines = [f"Goal: {node.get('goal', '')}"]
+
     clause = node.get("clause")
     if clause:
         label_lines.append(f"Clause: {clause}")
-    label_lines.append(f"Status: {node.get('status', 'unknown')}")
+
+    if node.get("line_number") is not None:
+        label_lines.append(f"Line: {node['line_number']}")
+
+    if node.get("substitution"):
+        label_lines.append(f"σ: {node['substitution']}")
+
+    if node.get("standardization"):
+        label_lines.append(f"std: {node['standardization']}")
+
+    if node.get("result"):
+        label_lines.append(f"Result: {node['result']}")
+
+    if node.get("backtracking"):
+        label_lines.append(f"Backtracking: {node['backtracking']}")
 
     content = [
-        f"<g class=\"node\">",
-        f"<rect x=\"{x}\" y=\"{y}\" width=\"{config.node_width}\" height=\"{config.node_height}\" />",
+        '<g class="node">',
+        f'<rect x="{x}" y="{y}" width="{config.node_width}" height="{config.node_height}" />',
     ]
 
-    text_y = y + config.line_height + 6
+    text_y = y + config.line_height + 10
+
     for line in label_lines:
         content.append(
-            f"<text class=\"text\" x=\"{x + 12}\" y=\"{text_y}\" font-size=\"{config.font_size}\">{_escape_svg(line)}</text>"
+            f'<text class="text" x="{x + 12}" y="{text_y}" font-size="{config.font_size}">{_escape_svg(line)}</text>'
         )
         text_y += config.line_height
 
