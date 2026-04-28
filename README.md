@@ -4,6 +4,8 @@ This project provides a reusable Python interface for querying a SWI-Prolog know
 
 The core idea is to treat a `.pl` file as a declarative knowledge base and expose selected Prolog queries through a Python service layer. This makes the interface suitable for different projects where logical rules, facts, and relationships should be maintained separately from the Python application code.
 
+![](sld_tree.svg)
+
 ---
 
 ## Features
