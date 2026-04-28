@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1624" height="794" viewBox="0 0 1624 794">
+<style>
+  .page { fill: #ffffff; }
+  .node rect { fill: #ffffff; stroke: #1f2937; stroke-width: 1.5px; rx: 8px; filter: drop-shadow(0px 2px 5px rgba(15, 23, 42, 0.12)); }
+  .node.success rect { stroke: #15803d; }
+  .node.failed rect { stroke: #b91c1c; }
+  .node.cut rect { stroke: #2563eb; }
+  .node.prolog_goal rect { stroke: #16a34a; }
+  .text { font-family: "Segoe UI", Arial, sans-serif; fill: #111827; }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; fill: #111827; }
+  .title { font-family: "Segoe UI", Arial, sans-serif; fill: #111827; font-weight: 650; font-size: 19px; }
+  .edge { stroke: #374151; stroke-width: 1.35px; }
+  .edge-label { font-family: "Cascadia Mono", Consolas, monospace; fill: #374151; font-size: 11px; }
+  .edge-label-bg { fill: #ffffff; stroke: #e5e7eb; stroke-width: 1px; rx: 6px; }
+  .status { font-weight: 650; }
+</style>
+<rect class="page" x="0" y="0" width="100%" height="100%" />
+<text x="40" y="58" class="title">SLD-Tree: ?- ktw_norm([ktw_a, ktw_b, ktw_c], Norm).</text>
+<line class="edge" x1="792.0" y1="472" x2="250.0" y2="658" />
+<line class="edge" x1="792.0" y1="472" x2="792.0" y2="658" />
+<line class="edge" x1="792.0" y1="472" x2="1334.0" y2="658" />
+<line class="edge" x1="792.0" y1="182" x2="792.0" y2="372" />
+<rect class="edge-label-bg" x="581.5" y="246.0" width="421" height="64" />
+<text class="edge-label" x="792.0" y="259.0" text-anchor="middle">(172)</text>
+<text class="edge-label" x="792.0" y="277.0" text-anchor="middle">s_1 = {Input -&gt; Input_1, Norms -&gt; Norms_2}</text>
+<text class="edge-label" x="792.0" y="295.0" text-anchor="middle">u_1 = {Input_1 -&gt; [ktw_a, ktw_b, ktw_c], Norms_2 -&gt; Norm}</text>
+<g class="node prolog_goal">
+<rect x="0.0" y="658" width="500" height="96" />
+<text class="mono" x="14.0" y="690" font-size="12">?- is_list([ktw_a, ktw_b, ktw_c])</text>
+<text class="text status" x="14.0" y="708" font-size="12">Erfolg</text>
+<text class="mono" x="14.0" y="726" font-size="12">Antwort: true</text>
+</g>
+<g class="node cut">
+<rect x="542.0" y="658" width="500" height="96" />
+<text class="mono" x="556.0" y="690" font-size="12">?- !</text>
+<text class="text status" x="556.0" y="708" font-size="12">Cut: erfolgreich</text>
+</g>
+<g class="node prolog_goal">
+<rect x="1084.0" y="658" width="500" height="96" />
+<text class="mono" x="1098.0" y="690" font-size="12">?- map_result(ktw_norm, [ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text status" x="1098.0" y="708" font-size="12">Erfolg</text>
+<text class="mono" x="1098.0" y="726" font-size="12">Antwort: Norm = [din_en_1789, din_en_1789, din_en_1789]</text>
+</g>
+<g class="node success">
+<rect x="542.0" y="372" width="500" height="100" />
+<text class="mono" x="556.0" y="404" font-size="12">?- ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="mono" x="556.0" y="422" font-size="12">Klausel (172): ktw_norm(Input_1, Norms_2)</text>
+<text class="text status" x="556.0" y="440" font-size="12">Erfolg</text>
+<text class="mono" x="556.0" y="458" font-size="12">Antwort: Norm = [din_en_1789, din_en_1789, din_en_1789]</text>
+</g>
+<g class="node success">
+<rect x="542.0" y="86" width="500" height="96" />
+<text class="mono" x="556.0" y="118" font-size="12">?- ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text status" x="556.0" y="136" font-size="12">Erfolg</text>
+<text class="mono" x="556.0" y="154" font-size="12">Antwort: Norm = [din_en_1789, din_en_1789, din_en_1789]</text>
+</g>
+</svg>
