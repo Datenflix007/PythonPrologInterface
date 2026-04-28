@@ -1,6 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="460" viewBox="0 0 800 460">
+<svg xmlns="http://www.w3.org/2000/svg" width="1492" height="690" viewBox="0 0 1492 690">
 <style>
-  .node rect { fill: #f8fafc; stroke: #1f2937; stroke-width: 1.8px; rx: 12px; filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.12)); }
+  .node rect { fill: #f8fafc; stroke: #1f2937; stroke-width: 1.6px; rx: 8px; filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.10)); }
+  .node.success rect { fill: #ecfdf5; stroke: #15803d; }
+  .node.failed rect { fill: #fef2f2; stroke: #b91c1c; }
+  .node.cut rect { fill: #eff6ff; stroke: #2563eb; }
+  .node.prolog_goal rect { fill: #f0fdf4; stroke: #16a34a; }
   .text { font-family: Arial, sans-serif; fill: #0f172a; }
   .title { font-weight: bold; font-size: 18px; }
   .edge { stroke: #475569; stroke-width: 1.4px; }
@@ -9,31 +13,45 @@
   .note { fill: #475569; font-size: 11px; }
 </style>
 <text x="40" y="58" class="text title">SLD Tree: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
-<line class="edge" x1="380.0" y1="150" x2="180.0" y2="310" />
-<text class="edge-label" x="280.0" y="222.0" text-anchor="middle">Zeile 172 | σ={} | std={}</text>
-<line class="edge" x1="380.0" y1="150" x2="580.0" y2="310" />
-<text class="edge-label" x="480.0" y="222.0" text-anchor="middle">Zeile 176 | σ={} | std={}</text>
-<g class="node">
-<rect x="0.0" y="310" width="360" height="110" />
-<text class="text" x="12.0" y="338" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
-<text class="text" x="12.0" y="356" font-size="12">Clause: ktw_norm(Input, Norms)</text>
-<text class="text" x="12.0" y="374" font-size="12">Line: 172</text>
-<text class="text" x="12.0" y="392" font-size="12">σ: {}</text>
-<text class="text" x="12.0" y="410" font-size="12">std: {}</text>
-<text class="text" x="12.0" y="428" font-size="12">Result: failed</text>
+<line class="edge" x1="726.0" y1="486" x2="230.0" y2="554" />
+<line class="edge" x1="726.0" y1="486" x2="726.0" y2="554" />
+<line class="edge" x1="726.0" y1="486" x2="1222.0" y2="554" />
+<line class="edge" x1="726.0" y1="178" x2="726.0" y2="318" />
+<text class="edge-label" x="726.0" y="240.0" text-anchor="middle">Zeile 172 | σ={Input→[ktw_a, ktw_b, ktw_c], Norms→Norm} | std={}</text>
+<g class="node prolog_goal">
+<rect x="0.0" y="554" width="460" height="96" />
+<text class="text" x="12.0" y="584" font-size="12">Goal: is_list([ktw_a, ktw_b, ktw_c])</text>
+<text class="text" x="12.0" y="602" font-size="12">Result: success</text>
+<text class="text" x="12.0" y="620" font-size="12">Answers: true</text>
 </g>
-<g class="node">
-<rect x="400.0" y="310" width="360" height="110" />
-<text class="text" x="412.0" y="338" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
-<text class="text" x="412.0" y="356" font-size="12">Clause: ktw_norm(Input, Norm)</text>
-<text class="text" x="412.0" y="374" font-size="12">Line: 176</text>
-<text class="text" x="412.0" y="392" font-size="12">σ: {}</text>
-<text class="text" x="412.0" y="410" font-size="12">std: {}</text>
-<text class="text" x="412.0" y="428" font-size="12">Result: failed</text>
+<g class="node cut">
+<rect x="496.0" y="554" width="460" height="96" />
+<text class="text" x="508.0" y="584" font-size="12">Goal: !</text>
+<text class="text" x="508.0" y="602" font-size="12">Result: success</text>
 </g>
-<g class="node">
-<rect x="200.0" y="40" width="360" height="110" />
-<text class="text" x="212.0" y="68" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
-<text class="text" x="212.0" y="86" font-size="12">Result: failed</text>
+<g class="node prolog_goal">
+<rect x="992.0" y="554" width="460" height="96" />
+<text class="text" x="1004.0" y="584" font-size="12">Goal: map_result(ktw_norm, [ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text" x="1004.0" y="602" font-size="12">Result: success</text>
+<text class="text" x="1004.0" y="620" font-size="12">Answers: Norm = [&apos;din_en_1789&apos;, &apos;din_en_1789&apos;,</text>
+<text class="text" x="1004.0" y="638" font-size="12">  &apos;din_en_1789&apos;]</text>
+</g>
+<g class="node success">
+<rect x="496.0" y="318" width="460" height="168" />
+<text class="text" x="508.0" y="348" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text" x="508.0" y="366" font-size="12">Clause: ktw_norm(Input, Norms)</text>
+<text class="text" x="508.0" y="384" font-size="12">Line: 172</text>
+<text class="text" x="508.0" y="402" font-size="12">σ: {Input→[ktw_a, ktw_b, ktw_c], Norms→Norm}</text>
+<text class="text" x="508.0" y="420" font-size="12">std: {}</text>
+<text class="text" x="508.0" y="438" font-size="12">Result: success</text>
+<text class="text" x="508.0" y="456" font-size="12">Answers: Norm = [&apos;din_en_1789&apos;, &apos;din_en_1789&apos;,</text>
+<text class="text" x="508.0" y="474" font-size="12">  &apos;din_en_1789&apos;]</text>
+</g>
+<g class="node success">
+<rect x="496.0" y="82" width="460" height="96" />
+<text class="text" x="508.0" y="112" font-size="12">Goal: ktw_norm([ktw_a, ktw_b, ktw_c], Norm)</text>
+<text class="text" x="508.0" y="130" font-size="12">Result: success</text>
+<text class="text" x="508.0" y="148" font-size="12">Answers: Norm = [&apos;din_en_1789&apos;, &apos;din_en_1789&apos;,</text>
+<text class="text" x="508.0" y="166" font-size="12">  &apos;din_en_1789&apos;]</text>
 </g>
 </svg>

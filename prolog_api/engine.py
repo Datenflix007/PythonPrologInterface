@@ -101,19 +101,24 @@ class PrologEngine:
 
         goals: List[str] = []
         buffer = ""
-        depth = 0
+        paren_depth = 0
+        bracket_depth = 0
 
         for char in body:
-            if char == "," and depth == 0:
+            if char == "," and paren_depth == 0 and bracket_depth == 0:
                 goals.append(buffer.strip())
                 buffer = ""
                 continue
 
             buffer += char
             if char == "(":
-                depth += 1
+                paren_depth += 1
             elif char == ")":
-                depth = max(0, depth - 1)
+                paren_depth = max(0, paren_depth - 1)
+            elif char == "[":
+                bracket_depth += 1
+            elif char == "]":
+                bracket_depth = max(0, bracket_depth - 1)
 
         if buffer.strip():
             goals.append(buffer.strip())
@@ -165,6 +170,38 @@ class PrologEngine:
     def _is_variable(self, token: str) -> bool:
         return bool(re.match(r"^[A-Z_][A-Za-z0-9_]*$", token))
 
+    def _resolve_value(self, token: str, substitution: Dict[str, str]) -> str:
+        seen = set()
+        current = token.strip()
+        while current in substitution and current not in seen:
+            seen.add(current)
+            current = substitution[current].strip()
+        return current
+
+    def _unify_terms(self, left: str, right: str, substitution: Dict[str, str]) -> bool:
+        left = self._resolve_value(left, substitution)
+        right = self._resolve_value(right, substitution)
+
+        if left == right:
+            return True
+
+        if self._is_variable(left):
+            substitution[left] = right
+            return True
+
+        if self._is_variable(right):
+            substitution[right] = left
+            return True
+
+        left_functor, left_args = self._parse_term(left)
+        right_functor, right_args = self._parse_term(right)
+        if left_args or right_args:
+            if left_functor != right_functor or len(left_args) != len(right_args):
+                return False
+            return all(self._unify_terms(a, b, substitution) for a, b in zip(left_args, right_args))
+
+        return False
+
     def _unify_goal_with_head(self, goal: str, head: str) -> Optional[Dict[str, str]]:
         goal_functor, goal_args = self._parse_term(goal)
         head_functor, head_args = self._parse_term(head)
@@ -173,14 +210,22 @@ class PrologEngine:
 
         substitution: Dict[str, str] = {}
         for head_arg, goal_arg in zip(head_args, goal_args):
-            head_arg = head_arg.strip()
-            goal_arg = goal_arg.strip()
-            if self._is_variable(head_arg):
-                substitution[head_arg] = goal_arg
-            elif head_arg != goal_arg:
+            if not self._unify_terms(head_arg, goal_arg, substitution):
                 return None
 
         return substitution
+
+    def _apply_substitution(self, text: str, substitution: Dict[str, str]) -> str:
+        pattern = re.compile(r"\b([A-Z_][A-Za-z0-9_]*)\b")
+        previous = None
+        result = text
+        while result != previous:
+            previous = result
+            result = pattern.sub(
+                lambda match: self._resolve_value(match.group(1), substitution),
+                result,
+            )
+        return result
 
     def _format_substitution(self, substitution: Optional[Dict[str, str]]) -> str:
         if not substitution:
@@ -191,6 +236,33 @@ class PrologEngine:
         if not mapping:
             return "{}"
         return "{" + ", ".join(f"{orig}→{new}" for orig, new in mapping.items()) + "}"
+
+    def _query_preview(self, goal: str, max_results: int = 3) -> List[Dict[str, Any]]:
+        try:
+            return self.query(goal, max_results=max_results)
+        except Exception:
+            return []
+
+    def _build_external_goal_node(self, goal: str) -> Dict[str, Any]:
+        answers = self._query_preview(goal)
+        node: Dict[str, Any] = {
+            "goal": goal,
+            "status": "prolog_goal" if answers else "failed",
+            "result": "success" if answers else "failed",
+            "children": [],
+        }
+        if answers:
+            node["answers"] = answers
+        return node
+
+    def _delegate_to_prolog(self, goal: str) -> bool:
+        goal_key = self._goal_key(goal)
+        return (
+            goal_key in {"is_list", "nonvar", "call", "map_result", "my_member"}
+            or goal.startswith("(")
+            or goal.startswith("\\+")
+            or "=" in goal
+        )
 
     def _build_sld_tree(self, goal: str, depth: int, visited: List[str], max_depth: int) -> Dict[str, Any]:
         node: Dict[str, Any] = {"goal": goal, "status": "pending", "children": []}
@@ -205,15 +277,21 @@ class PrologEngine:
             node["result"] = "failed"
             return node
 
+        if goal == "!":
+            node["status"] = "cut"
+            node["result"] = "success"
+            return node
+
+        if self._delegate_to_prolog(goal):
+            return self._build_external_goal_node(goal)
+
         clause_key = self._goal_key(goal)
         clauses = self.clauses.get(clause_key, [])
         if not clauses:
-            node["status"] = "unknown_goal"
-            node["result"] = "failed"
-            return node
+            return self._build_external_goal_node(goal)
 
         for clause_index, clause in enumerate(clauses, start=1):
-            standardized = self._standardize_clause(clause, clause_index)
+            standardized = self._standardize_clause(clause, depth * 1000 + clause_index)
             substitution = self._unify_goal_with_head(goal, standardized["head"])
 
             attempt: Dict[str, Any] = {
@@ -232,17 +310,32 @@ class PrologEngine:
             elif not standardized["body"]:
                 attempt["status"] = "fact"
                 attempt["result"] = "success"
+                attempt["answers"] = self._query_preview(goal)
             else:
                 all_success = True
+                cut_seen = False
+                current_substitution = dict(substitution)
                 for subgoal in standardized["body"]:
-                    child = self._build_sld_tree(subgoal, depth + 1, visited + [goal], max_depth)
+                    instantiated_subgoal = self._apply_substitution(subgoal, current_substitution)
+                    if instantiated_subgoal == "!":
+                        cut_seen = True
+                    child = self._build_sld_tree(instantiated_subgoal, depth + 1, visited + [goal], max_depth)
                     attempt["children"].append(child)
                     if child.get("result") != "success":
                         all_success = False
+                        break
+                    child_answers = child.get("answers") or []
+                    if len(child_answers) == 1:
+                        for key, value in child_answers[0].items():
+                            current_substitution[key] = str(value)
                 attempt["status"] = "rule"
                 attempt["result"] = "success" if all_success else "failed"
+                if all_success:
+                    attempt["answers"] = self._query_preview(goal)
 
             node["children"].append(attempt)
+            if attempt.get("result") == "success" and cut_seen:
+                break
 
         for idx, child in enumerate(node["children"]):
             if child["result"] == "failed" and any(later["result"] == "success" for later in node["children"][idx + 1 :]):
@@ -250,4 +343,6 @@ class PrologEngine:
 
         node["result"] = "success" if any(child["result"] == "success" for child in node["children"]) else "failed"
         node["status"] = node["result"]
+        if node["result"] == "success":
+            node["answers"] = self._query_preview(goal)
         return node

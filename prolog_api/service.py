@@ -61,14 +61,9 @@ class PrologService:
         return self.engine.is_true(query)
 
     def explain_query(self, query_text: str, mode: str = "long") -> Any:
-        long_result = self.engine.explain_query(query_text)
         if mode == "short":
-            return {
-                "query": query_text,
-                "mode": "short",
-                "data": self._shorten_results(self.engine.query(query_text)),
-            }
-        return long_result
+            return self._shorten_results(self.engine.query(query_text))
+        return self.engine.explain_query(query_text)
 
     def handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """
