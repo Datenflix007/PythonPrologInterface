@@ -35,6 +35,9 @@ class PrologService:
         query = f"suitable_for_project({person}, {project})"
         return self.engine.is_true(query)
 
+    def explain_query(self, query_text: str) -> Dict[str, Any]:
+        return self.engine.explain_query(query_text)
+
     def handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generische Schnittstelle für andere Python-Kontexte.
@@ -66,6 +69,9 @@ class PrologService:
 
             elif action == "raw_query":
                 data = self.raw_query(params["query"])
+
+            elif action == "explain_query":
+                data = self.explain_query(params["query"])
 
             else:
                 return {

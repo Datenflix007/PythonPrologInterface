@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1124" height="302" viewBox="0 0 1124 302">
+<style>
+  .node rect { fill: #f8fafc; stroke: #1f2937; stroke-width: 1.8px; rx: 12px; }
+  .text { font-family: Arial, sans-serif; fill: #111827; }
+  .title { font-weight: bold; font-size: 16px; }
+  .edge { stroke: #4b5563; stroke-width: 1.2px; }
+  .note { fill: #374151; font-size: 12px; font-style: italic; }
+</style>
+<text x="24" y="38" class="text title">SLD Tree: ktw_compliant(ktw_c, Type)</text>
+<line class="edge" x1="550.0" y1="96" x2="130.0" y2="206" />
+<line class="edge" x1="550.0" y1="96" x2="410.0" y2="206" />
+<line class="edge" x1="550.0" y1="96" x2="690.0" y2="206" />
+<line class="edge" x1="550.0" y1="96" x2="970.0" y2="206" />
+<g class="node">
+<rect x="0.0" y="206" width="260" height="72" />
+<text class="text" x="12.0" y="230" font-size="13">Goal: ktw_type(Type)</text>
+<text class="text" x="12.0" y="248" font-size="13">Clause: ktw_type(typ_a)</text>
+<text class="text" x="12.0" y="266" font-size="13">Status: fact</text>
+</g>
+<g class="node">
+<rect x="280.0" y="206" width="260" height="72" />
+<text class="text" x="292.0" y="230" font-size="13">Goal: vehicle(Vehicle)</text>
+<text class="text" x="292.0" y="248" font-size="13">Clause: vehicle(ktw_a)</text>
+<text class="text" x="292.0" y="266" font-size="13">Status: fact</text>
+</g>
+<g class="node">
+<rect x="560.0" y="206" width="260" height="72" />
+<text class="text" x="572.0" y="230" font-size="13">Goal: equipment_profile(Type, RequiredEquipment)</text>
+<text class="text" x="572.0" y="248" font-size="13">Clause: equipment_profile(typ_a, [stretcher, oxygen_set, defibrillator])</text>
+<text class="text" x="572.0" y="266" font-size="13">Status: fact</text>
+</g>
+<g class="node">
+<rect x="840.0" y="206" width="260" height="72" />
+<text class="text" x="852.0" y="230" font-size="13">Goal: has_all_equipment(Vehicle, RequiredEquipment)</text>
+<text class="text" x="852.0" y="248" font-size="13">Clause: has_all_equipment(_, [])</text>
+<text class="text" x="852.0" y="266" font-size="13">Status: fact</text>
+</g>
+<g class="node">
+<rect x="420.0" y="24" width="260" height="72" />
+<text class="text" x="432.0" y="48" font-size="13">Goal: ktw_compliant(ktw_c, Type)</text>
+<text class="text" x="432.0" y="66" font-size="13">Clause: ktw_compliant(Vehicle, Type)</text>
+<text class="text" x="432.0" y="84" font-size="13">Status: rule</text>
+</g>
+</svg>
